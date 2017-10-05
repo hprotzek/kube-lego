@@ -57,17 +57,19 @@ node('docker-enabled'){
         stage 'Checkout source code'
         checkout scm
 
-        stage 'Test kube-lego'
-        sh "make docker_test"
-        step([$class: 'JUnitResultArchiver', testResults: '_test/test*.xml'])
+        container('ubuntu') {
+            stage 'Test kube-lego'
+            sh "make docker_test"
+            step([$class: 'JUnitResultArchiver', testResults: '_test/test*.xml'])
 
-        stage 'Build kube-lego'
-        sh "make docker_build"
+            stage 'Build kube-lego'
+            sh "make docker_build"
 
-        stage 'Build docker image'
-        sh "docker build --build-arg VCS_REF=${gitCommit().take(8)} -t ${imageName}:${imageTag} ."
+            stage 'Build docker image'
+            sh "docker build --build-arg VCS_REF=${gitCommit().take(8)} -t ${imageName}:${imageTag} ."
 
-        stage 'Push docker image'
-        sh "gcloud docker -- push ${imageName}:${imageTag}"
-        jenkinsSlack('finish')
+            stage 'Push docker image'
+            sh "gcloud docker -- push ${imageName}:${imageTag}"
+            jenkinsSlack('finish')
+         }
 }
