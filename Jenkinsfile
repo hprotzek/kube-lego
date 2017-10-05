@@ -67,7 +67,8 @@ node('docker-enabled'){
 
             stage 'Build docker image'
             sh "docker build --build-arg VCS_REF=${gitCommit().take(8)} -t ${imageName}:${imageTag} ."
-
+        }
+        container('gcloud-enabled') {
             stage 'Push docker image'
             sh "gcloud docker -- push ${imageName}:${imageTag}"
             jenkinsSlack('finish')
