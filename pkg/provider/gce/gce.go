@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jetstack/kube-lego/pkg/kubelego_const"
 	"github.com/jetstack/kube-lego/pkg/service"
 
 	"github.com/Sirupsen/logrus"
@@ -87,7 +86,9 @@ func (p *Gce) updateService(namespace string) (err error) {
 
 	svc.SetKubeLegoSpec()
 	svc.Object().Spec.Type = "NodePort"
-	svc.Object().Spec.Selector = map[string]string{}
+	svc.Object().Spec.Selector = map[string]string{
+		"app": "kube-lego",
+	}
 
 	podIP := p.kubelego.LegoPodIP().String()
 	p.Log().WithField("pod_ip", podIP).WithField("namespace", namespace).Debug("setting up svc endpoint")
