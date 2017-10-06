@@ -57,7 +57,7 @@ node('docker-enabled'){
         stage 'Checkout source code'
         checkout scm
 
-        container('ubuntu') {
+        container('make') {
             stage 'Test kube-lego'
             sh "make docker_test"
             step([$class: 'JUnitResultArchiver', testResults: '_test/test*.xml'])
@@ -68,7 +68,7 @@ node('docker-enabled'){
             stage 'Build docker image'
             sh "docker build --build-arg VCS_REF=${gitCommit().take(8)} -t ${imageName}:${imageTag} ."
         }
-        container('gcloud-enabled') {
+        container('gcloud') {
             stage 'Push docker image'
             sh "gcloud docker -- push ${imageName}:${imageTag}"
             jenkinsSlack('finish')
